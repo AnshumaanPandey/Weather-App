@@ -9,8 +9,11 @@ function App() {
   const [localData, setLocalData] = useLocalStorage("weatherData", {})
   const [weatherData, setWeatherData] = useState({})
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState("")
 
   const fetchWeatherDetails = async () => {
+    setLoading("Loading...")
+    setWeatherData({})
     const options = {
       method: 'GET',
       url: 'https://weatherapi-com.p.rapidapi.com/current.json',
@@ -26,6 +29,7 @@ function App() {
     try {
       if (Object.keys(localData).length) {
         const response = await axios.request(options);
+        setLoading("")
         setWeatherData(response.data)
       }
     } catch (error) {
@@ -41,11 +45,12 @@ function App() {
   return (
     <div className="App">
       <h1>Weather App</h1>
-      <FormLocation setLocalData={setLocalData} localData={localData} setError={setError}/>
+      <FormLocation setLocalData={setLocalData} localData={localData} setError={setError} />
       <button disabled={error || !localData.latitude || !localData.longitude} className='btn' onClick={() => fetchWeatherDetails()}>Get Current Weather</button>
-      {error && <span style={{color: "red", fontSize: "13px"}}>{error}</span>}
-      {Object.keys(weatherData).length > 0 &&
-        <div className='flex_box'>
+      {error && <span style={{ color: "red", fontSize: "13px" }}>{error}</span>}
+      {
+        Object.keys(weatherData).length > 0 ?
+         <div className='flex_box'>
           <div className="flex_items">
             <label htmlFor="name">Location Name : </label>
             <span>{weatherData.location.name}</span>
@@ -78,7 +83,7 @@ function App() {
             <label htmlFor="feelLike">Feels Like :</label>
             <span>{weatherData.current.feelslike_c}&deg;C </span>
           </div>
-        </div>}
+        </div> : <div style={{fontSize:"18px", fontWeight: "600"}}>{loading}</div>}
     </div>
   );
 }
